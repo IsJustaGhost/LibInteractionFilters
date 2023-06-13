@@ -10,8 +10,8 @@ local strings = {
 }
 
 for stringId, stringValue in pairs(strings) do
-	ZO_CreateStringId(stringId, stringValue)
-	SafeAddVersion(_G[stringId], 1)
+	SafeAddString(stringId, stringValue, 2)
+--	SafeAddVersion(_G[stringId], 1)
 end
 
 

@@ -11,15 +11,15 @@ local strings = {
 }
 
 for stringId, stringValue in pairs(strings) do
-	ZO_CreateStringId(stringId, stringValue)
-	SafeAddVersion(_G[stringId], 1)
+	SafeAddString(stringId, stringValue, 2)
+--	SafeAddVersion(_G[stringId], 1)
 end
 
 --[[
 	LIB_IF_ACTIONTYPE_SEARCH		= 1		-- Durchsuchen
 	LIB_IF_ACTIONTYPE_TALK			= 2		-- Reden
 	LIB_IF_ACTIONTYPE_HARVEST		= 3		-- Einsammeln
-	LIB_IF_ACTIONTYPE_DISARM		= 4		-- Entscharfen
+	LIB_IF_ACTIONTYPE_DISARM		= 4		-- Entschärfen
 	LIB_IF_ACTIONTYPE_USE			= 5		-- Benutzen
 	LIB_IF_ACTIONTYPE_READ			= 6		-- Lesen
 	LIB_IF_ACTIONTYPE_TAKE			= 7		-- Nehmen
@@ -55,7 +55,7 @@ end
 3 Einsammeln		"harvest"
 	["Mine"]		= 3,
 	["Collect"]		= 3,
-4 Entscharfen		"disarm"
+4 Entschärfen		"disarm"
 5 Benutzen			"use"
 6 Lesen				"read"
 7 Nehmen			"take"
@@ -98,7 +98,7 @@ water - Nehmen
 log - Hacken
 psyjic protal - Erbeuten - loot
 
-disarm - Entscharfen
+disarm - Entschärfen
 
 
 /script SetCVar("language.2", "de")
