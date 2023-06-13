@@ -67,16 +67,22 @@ end
 -----------------------------------------------------------------------------
 local lib_reticle = RETICLE
 
+local checkAll = true
+local function shouldCheckAll(actionFilters, nextKey)
+	return select(2, next(actionFilters, nextKey)) == nil and checkAll
+end
+
 function lib:IterateOverActions(action)
-	local actionFilters = self.actionFilters
+	local actionFilters = self.actionFilters[action] or {}
 	local nextKey, nextData = next(actionFilters)
+	checkAll = true
 	return function()
 		while nextKey do
-			local currentAction, actionFilterTable = nextKey, nextData
+			local registerdName, filterFunction = nextKey, nextData
 			nextKey, nextData = next(actionFilters, nextKey)
 			
-			if currentAction == action or currentAction == 'all' then
-				return actionFilterTable
+			if filterFunction then
+				return filterFunction
 			end
 		end
 	end
@@ -85,13 +91,15 @@ end
 -- where ... = interactableName, interactionPossible, currentFrameTimeSeconds
 function lib:IsInteractionDisabled(action, ...)
 	local isDisabled = false
-	for actionFilters in self:IterateOverActions(action) do
-		for registerdName, filterFunction in pairs(actionFilters) do
+
+	for k, _action in ipairs({'all', action}) do
+		for filterFunction in self:IterateOverActions(_action) do
 			if filterFunction(action, ...) then
 				isDisabled = true
 			end
 		end
 	end
+
 	return isDisabled
 end
 
