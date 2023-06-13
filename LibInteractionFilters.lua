@@ -67,11 +67,6 @@ end
 -----------------------------------------------------------------------------
 local lib_reticle = RETICLE
 
-local checkAll = true
-local function shouldCheckAll(actionFilters, nextKey)
-	return select(2, next(actionFilters, nextKey)) == nil and checkAll
-end
-
 function lib:IterateOverActions(action)
 	local actionFilters = self.actionFilters[action] or {}
 	local nextKey, nextData = next(actionFilters)
