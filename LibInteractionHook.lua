@@ -1,6 +1,11 @@
 --[[
 	TODO:
-	Look into making a way to be able to call 
+	Look into making a way to be able to call localized strings
+
+lib.GetLocalizedStringForAction(action, lang)
+	local langTable = allTheActionStrings[action]
+	return langTable[lang], langTable[GetCVar("Language.2")] -- format the strings
+
 
 	LIB_IF_ACTIONTYPE_ANY ?
 ]]
@@ -80,11 +85,11 @@ function lib.IterateSelectedAction(action)
 	local nextKey, nextData = next(actionTypes)
 	return function()
 		while nextKey do
-			local registerdName, filterFunction = nextKey, nextData
+			local registerdName, callback = nextKey, nextData
 			nextKey, nextData = next(actionTypes, nextKey)
 			
-			if filterFunction then
-				return filterFunction
+			if callback then
+				return callback
 			end
 		end
 	end
@@ -95,8 +100,8 @@ function lib.IsInteractionDisabled(action, ...)
 	local isDisabled = false
 
 	for k, _action in ipairs({ANY_ACTION, action}) do
-		for filterFunction in lib.IterateSelectedAction(_action) do
-			if filterFunction(action, ...) then
+		for callback in lib.IterateSelectedAction(_action) do
+			if callback(action, ...) then
 				isDisabled = true
 			end
 		end
@@ -207,7 +212,7 @@ end)
 -----------------------------------------------------------------------------
 -- This must be used in order to allow gamepad users to jump while interation is disabled
 function lib_reticle:GetInteractPromptVisible()
-	if self.interactionDisabled then
+	if lib.interactionDisabled then
 		return false
 	end
 	return not self.interact:IsHidden()
@@ -219,9 +224,9 @@ end
 local orig_StartInteraction = INTERACTIVE_WHEEL_MANAGER.StartInteraction
 function INTERACTIVE_WHEEL_MANAGER:StartInteraction(interactiveWheelType)
 	-- Lets at least run the original so it can do it's thing before canceling it out to disable interactions.
+	local result = orig_StartInteraction(self, interactiveWheelType)
 	if interactiveWheelType == ZO_INTERACTIVE_WHEEL_TYPE_FISHING and lib.interactionDisabled then
 		return true
 	end
-	local result = orig_StartInteraction(self, interactiveWheelType)
 	return result
 end
