@@ -57,7 +57,7 @@ end
 -----------------------------------------------------------------------------
 -- 
 -----------------------------------------------------------------------------
--- Lets just clode the default strings as our own.
+-- Lets just clone the default strings as our own.
 for i=1, 27 do
 	_G['SI_LIB_IF_GAMECAMERAACTIONTYPE' .. i] = _G['SI_GAMECAMERAACTIONTYPE' .. i]
 end
