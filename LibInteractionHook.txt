@@ -1,4 +1,4 @@
-## Title: LibInteractionFilters
+## Title: LibInteractionHook
 ## Author: IsJustaGhost
 ## APIVersion: 101038
 ## Version: 2.2
@@ -8,7 +8,7 @@
 
 i18n\strings.lua
 i18n\$(language).lua
-LibInteractionFilters.lua
+LibInteractionHook.lua
 
 ##
 ## This Add-on is not created by, affiliated with or sponsored by ZeniMax Media Inc. or its affiliates. 

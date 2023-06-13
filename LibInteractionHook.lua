@@ -6,7 +6,7 @@
 ]]
 
 
-local LIB_IDENTIFIER, LIB_VERSION = "LibInteractionFilters", 03
+local LIB_IDENTIFIER, LIB_VERSION = "LibInteractionHook", 03
 if _G[LIB_IDENTIFIER] and _G[LIB_IDENTIFIER].version > LIB_VERSION then
 	return
 end
@@ -188,9 +188,9 @@ function lib.GetAllActionsInfo()
 	return actionsInfo
 end
 
-LIB_INTERACTION_FILTERS = lib
---	/script LIB_INTERACTION_FILTERS.ListAllActionsInfo()
---	/tb LIB_INTERACTION_FILTERS.GetAllActionsInfo()
+LIB_INTERACTION_HOOK = lib
+--	/script LIB_INTERACTION_HOOK.ListAllActionsInfo()
+--	/tb LIB_INTERACTION_HOOK.GetAllActionsInfo()
 -----------------------------------------------------------------------------
 -- Hook
 -----------------------------------------------------------------------------

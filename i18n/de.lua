@@ -103,5 +103,5 @@ disarm - Entschärfen
 
 /script SetCVar("language.2", "de")
 /script for i=1, 40 do d(i .. ' ' .. GetString("SI_GAMECAMERAACTIONTYPE", i)) end
-
+GetCVar("Language.2"
 --]]
