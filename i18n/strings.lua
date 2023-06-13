@@ -9,11 +9,6 @@ local strings = {
 	SI_LIB_IF_GAMECAMERAACTIONTYPE31 = 'Capture',
 }
 
--- Only need to do this in here. It will be done as language specific on laod.
-for i=1, 27 do
-	strings['SI_LIB_IF_GAMECAMERAACTIONTYPE' .. i] = GetString('SI_GAMECAMERAACTIONTYPE', i)
-end
-
 for stringId, stringValue in pairs(strings) do
 	ZO_CreateStringId(stringId, stringValue)
 	SafeAddVersion(stringId, 1)

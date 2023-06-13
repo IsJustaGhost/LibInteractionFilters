@@ -9,10 +9,9 @@ lib.name = LIB_IDENTIFIER
 lib.version = LIB_VERSION
 _G[LIB_IDENTIFIER] = lib
 
----------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 -- actionFilters
----------------------------------------------------------------------------------------------------------------
-
+-----------------------------------------------------------------------------
 local actionFilters = {
 	'LIB_IF_ACTIONTYPE_SEARCH',		-- Search - loot
 	'LIB_IF_ACTIONTYPE_TALK',		-- Talk
@@ -55,9 +54,17 @@ for i, actionFilter in ipairs(actionFilters) do
 	end
 end
 
----------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 -- 
----------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+-- Lets just clode the default strings as our own.
+for i=1, 27 do
+	_G['SI_LIB_IF_GAMECAMERAACTIONTYPE' .. i] = _G['SI_GAMECAMERAACTIONTYPE' .. i]
+end
+
+-----------------------------------------------------------------------------
+-- 
+-----------------------------------------------------------------------------
 local lib_reticle = RETICLE
 
 function lib:IterateOverActions(action)
@@ -99,9 +106,9 @@ function lib:OnTryHandelingInteraction(...)
 	end
 end
 
----------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 -- Un/Register
----------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 function lib:RegisterForOnTryHandlingInteractionCallback(registerdName, action, filter)
 	if type(action) == 'function' then
 		filter = action
@@ -140,9 +147,9 @@ function lib:UnregisterForOnTryHandlingInteractionCallback(registerdName, action
 	end
 end
 
----------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 -- Get action info
----------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 -- Post the list of actions and thier actionFilter to chat
 function lib:ListAllActionsInfo()
 	for i, actionFilter in ipairs(actionFilters) do
@@ -171,9 +178,9 @@ end
 LIB_INTERACTION_FILTERS = lib
 --	/script LIB_INTERACTION_FILTERS:ListAllActionsInfo()
 --	/tb LIB_INTERACTION_FILTERS:GetAllActionsInfo()
----------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 -- Hook
----------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 -- RETICLE.interactionDisabled is added and used to prevent interaction at INTERACTIVE_WHEEL_MANAGER:StartInteraction()
 -- Setting RETICLE.interactionBlocked to true will cause the reticle keybind to turn gray.
 SecurePostHook(lib_reticle, "TryHandlingInteraction", function(self, interactionPossible, currentFrameTimeSeconds)
@@ -182,9 +189,9 @@ SecurePostHook(lib_reticle, "TryHandlingInteraction", function(self, interaction
 	lib:OnTryHandelingInteraction(interactionPossible, currentFrameTimeSeconds)
 end)
 
----------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 -- Disabling interaction.
----------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 -- This must return true in order to prevent interactions
 -- Using a hook would return nil, which would allow the interaction to run.
 -- if not INTERACTIVE_WHEEL_MANAGER:StartInteraction(ZO_INTERACTIVE_WHEEL_TYPE_FISHING) then GameCameraInteractStart() end
