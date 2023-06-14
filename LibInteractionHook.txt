@@ -7,10 +7,13 @@
 ## Description: An API For handling interaction filters.
 
 init.lua
+
 i18n\strings.lua
 i18n\de.lua
 i18n\fr.lua
 i18n\ru.lua
+i18n\es.lua
+
 LibInteractionHook.lua
 
 ##
