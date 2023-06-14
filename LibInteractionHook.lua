@@ -230,7 +230,9 @@ end
 
 function lib:GetActionTranslation(actionId, toLang)
 	local localizedAction = self.localization[actionId]
-
+	if not localizedAction[toLang] then
+		toLang = currentLang
+	end
 	return zo_strformat('[<<1>>] = <<2>> >> <<3>>', actionId, localizedAction[currentLang], localizedAction[toLang])
 end
 
