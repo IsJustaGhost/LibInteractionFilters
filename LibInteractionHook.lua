@@ -71,10 +71,16 @@ end
 -- Register strings
 local currentLang = GetCVar("Language.2")
 do
-	local currentStrings = lib.localization[currentLang]
-	if currentStrings == nil then
-		currentStrings = lib.localization['en']
+	-- If currentLang is not in localization then default to en.
+	local function getCurrentLang(lang)
+		if not lib.localization[lang] then
+			return getCurrentLang("en")
+		end
+		currentLang = lang
 	end
+	getCurrentLang(currentLang)
+
+	local currentStrings = lib.localization[currentLang]
 
 	for i, action in ipairs(currentStrings) do
 		if action ~= '' then
@@ -229,7 +235,7 @@ end
 
 LIB_INTERACTION_HOOK = lib
 --	/script d(LIB_INTERACTION_HOOK:GetActionTranslation(LIB_IF_GAMECAMERAACTION_UNLOCK, "de"))
--- >>>  [12] = Unlock >> Aufschlieben
+-- "[12] = Unlock >> Aufschlieben"
 --	/script LIB_INTERACTION_HOOK.ListAllActionsInfo()
 --	/tb LIB_INTERACTION_HOOK.GetAllActionsInfo()
 --	/tb LIB_INTERACTION_HOOK:GetAllActionsInfo()
