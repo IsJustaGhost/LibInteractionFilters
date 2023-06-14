@@ -19,8 +19,12 @@ end
 local lib = _G[LIB_IDENTIFIER]
 
 local ANY_ACTION = 'Any Action'
-local lib_actionTypes = {}
-lib.actionTypes = lib_actionTypes
+local lib_actions = {}
+lib.actions = lib_actions
+
+-- Only used once, but I want it here so I can see them. Forgot to put es in there.
+local languages = {"en", "de", "fr", "ru", "es"}
+
 -----------------------------------------------------------------------------
 -- Dynamically generate ActionIds and Localization
 -----------------------------------------------------------------------------
@@ -96,7 +100,7 @@ do
 	local localizationStings = lib.localization
 	-- Reporpus lib.localization for traslated actions table.
 	lib.localization = {}
-	for k, lang in pairs({"en", "de", "fr", "ru"}) do
+	for k, lang in pairs(languages) do
 		local actionTable = localizationStings[lang]
 		for i, action in ipairs(actionTable) do
 			if action ~= '' then
@@ -114,11 +118,12 @@ end
 local lib_reticle = RETICLE
 
 function lib.IterateSelectedAction(action)
-	local actionTypes = lib_actionTypes[action] or {}
+	local actionTypes = lib_actions[action] or {}
 	local nextKey, nextData = next(actionTypes)
 	return function()
 		while nextKey do
-			local registerdName, callback = nextKey, nextData
+		--	local registerdName, callback = nextKey, nextData
+			local callback = nextData
 			nextKey, nextData = next(actionTypes, nextKey)
 			
 			if callback then
@@ -154,7 +159,7 @@ function lib.OnTryHandelingInteraction(...)
 	end
 end
 
-function lib:HideInteraction(hidden)
+function lib.HideInteraction()
 	lib_reticle.interact:SetHidden(true)
 end
 -- lib_reticle:RequestHidden(true)
@@ -162,7 +167,7 @@ end
 -----------------------------------------------------------------------------
 -- Un/Register
 -----------------------------------------------------------------------------
-function lib:RegisterOnTryHandlingInteraction(registerdName, action, callback)
+function lib.RegisterOnTryHandlingInteraction(registerdName, action, callback)
 	local action_type = type(action)
 	if action_type == 'function' then
 		callback = action
@@ -174,28 +179,28 @@ function lib:RegisterOnTryHandlingInteraction(registerdName, action, callback)
 	assert(type(registerdName) == 'string' and (callback ~= nil and type(callback) == 'function') and type(action) ~= nil , 
 		string.format("LIB_INTERACTION_FILTERS.RegisterOnTryHandlingInteraction': Your parameters are wrong. Needed types are: ... / Your values are: addonName %q, action %q, filter: %s", tostring(registerdName), tostring(action), tostring(callback)))
 	
-	local actionType = lib_actionTypes[action] or {}
-	lib_actionTypes[action] = actionType
+	local actionTable = lib_actions[action] or {}
+	lib_actions[action] = actionTable
 	
 	-- where ... = action, interactableName, currentFrameTimeSeconds
-	actionType[registerdName] = function(...)
+	actionTable[registerdName] = function(...)
 		return callback(...)
 	end
 end
 
-function lib:UnregisterOnTryHandlingInteraction(registerdName, action)
+function lib.UnregisterOnTryHandlingInteraction(registerdName, action)
 	if type(action) == 'number' then
 		action = GetString(action)
 	else
 		action = action or ANY_ACTION
 	end
 	
-	local actionType = lib_actionTypes[action]
-	if actionType ~= nil then
-		actionType[registerdName] = nil
+	local actionTable = lib_actions[action]
+	if actionTable ~= nil then
+		actionTable[registerdName] = nil
 		
-		if NonContiguousCount(lib_actionTypes[action]) == 0 then
-			lib_actionTypes[action] = nil
+		if NonContiguousCount(lib_actions[action]) == 0 then
+			lib_actions[action] = nil
 		end
 	end
 end
@@ -205,9 +210,9 @@ end
 -----------------------------------------------------------------------------
 -- Post the list of actions and thier actionType to chat
 function lib.ListAllActionsInfo()
-	for i, actionType in ipairs(actionTypes) do
-		if actionType ~= '' then
-			d( zo_strformat('<<1>> = <<2>>, String = <<3>>', actionType, i, GetString('SI_LIB_IF_GAMECAMERAACTION', i)))
+	for i, actionId in ipairs(actionIds) do
+		if actionId ~= '' then
+			d( zo_strformat('<<1>> = <<2>>, String = <<3>>', actionId, i, GetString('SI_LIB_IF_GAMECAMERAACTION', i)))
 		end
 	end
 end
@@ -215,11 +220,11 @@ end
 -- returns [table]actionsInfo
 function lib.GetAllActionsInfo()
 	local actionsInfo = {}
-	for i, actionType in ipairs(actionTypes) do
-		if actionType ~= '' then
+	for i, actionId in ipairs(actionIds) do
+		if actionId ~= '' then
 			local newEntry = {
-					actionType = i,
-					constant = actionType,
+					index = i,
+					actionId = actionId,
 					action = GetString('SI_LIB_IF_GAMECAMERAACTION', i)
 				}
 			table.insert(actionsInfo, newEntry)
@@ -228,15 +233,15 @@ function lib.GetAllActionsInfo()
 	return actionsInfo
 end
 
-function lib:GetActionTranslation(actionId, toLang)
-	local localizedAction = self.localization[actionId]
+function lib.GetActionTranslation(actionId, toLang)
+	local localizedAction = lib.localization[actionId]
 	if not localizedAction[toLang] then
 		toLang = currentLang
 	end
 	return zo_strformat('[<<1>>] = <<2>> >> <<3>>', actionId, localizedAction[currentLang], localizedAction[toLang])
 end
 
-LIB_INTERACTION_HOOK = lib
+--LIB_INTERACTION_HOOK = lib
 --	/script d(LIB_INTERACTION_HOOK:GetActionTranslation(LIB_IF_GAMECAMERAACTION_UNLOCK, "de"))
 -- "[12] = Unlock >> Aufschlieben"
 --	/script LIB_INTERACTION_HOOK.ListAllActionsInfo()
