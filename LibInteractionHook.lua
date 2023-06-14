@@ -140,7 +140,7 @@ function lib:RegisterOnTryHandlingInteraction(registerdName, action, callback)
 		action = GetString(action)
 	end
 	
-	assert(type(registerdName) == 'string' or (callback ~= nil and type(callback) == 'function') or type(action) ~= nil , 
+	assert(type(registerdName) == 'string' and (callback ~= nil and type(callback) == 'function') and type(action) ~= nil , 
 		string.format("LIB_INTERACTION_FILTERS.RegisterOnTryHandlingInteraction': Your parameters are wrong. Needed types are: ... / Your values are: addonName %q, action %q, filter: %s", tostring(registerdName), tostring(action), tostring(callback)))
 	
 	local actionType = lib_actionTypes[action] or {}
