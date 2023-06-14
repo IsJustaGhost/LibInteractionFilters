@@ -11,70 +11,94 @@ lib.GetLocalizedStringForAction(action, lang)
 ]]
 
 
+
 local LIB_IDENTIFIER, LIB_VERSION = "LibInteractionHook", 03
 if _G[LIB_IDENTIFIER] and _G[LIB_IDENTIFIER].version > LIB_VERSION then
 	return
 end
-
-local lib = {}
-lib.name = LIB_IDENTIFIER
-lib.version = LIB_VERSION
-_G[LIB_IDENTIFIER] = lib
+local lib = _G[LIB_IDENTIFIER]
 
 local ANY_ACTION = 'Any Action'
 local lib_actionTypes = {}
 lib.actionTypes = lib_actionTypes
 -----------------------------------------------------------------------------
--- actionTypes
+-- Dynamically generate ActionIds and Localization
 -----------------------------------------------------------------------------
-local actionTypes = {
+local actionIds = {
+	-- From game actionFilters
 	'LIB_IF_GAMECAMERAACTION_SEARCH',		-- Search - loot
-	'LIB_IF_GAMECAMERAACTION_TALK',		-- Talk
-	'LIB_IF_GAMECAMERAACTION_HARVEST',	-- Harvest (Mine, Cut, Collect)
+	'LIB_IF_GAMECAMERAACTION_TALK',			-- Talk
+	'LIB_IF_GAMECAMERAACTION_HARVEST',		-- Harvest (Mine, Cut, Collect)
 	'LIB_IF_GAMECAMERAACTION_DISARM',		-- Disarm
-	'LIB_IF_GAMECAMERAACTION_USE',		-- Use
-	'LIB_IF_GAMECAMERAACTION_READ',		-- Read
-	'LIB_IF_GAMECAMERAACTION_TAKE',		-- Take
-	'LIB_IF_GAMECAMERAACTION_DESTROY',	-- Destroy
+	'LIB_IF_GAMECAMERAACTION_USE',			-- Use
+	'LIB_IF_GAMECAMERAACTION_READ',			-- Read
+	'LIB_IF_GAMECAMERAACTION_TAKE',			-- Take
+	'LIB_IF_GAMECAMERAACTION_DESTROY',		-- Destroy
 	'LIB_IF_GAMECAMERAACTION_REPAIR',		-- Repair
-	'LIB_IF_GAMECAMERAACTION_INSPECT',	-- Inspect
-	'LIB_IF_GAMECAMERAACTION_REPAIR2',	-- Repair
+	'LIB_IF_GAMECAMERAACTION_INSPECT',		-- Inspect
+	'LIB_IF_GAMECAMERAACTION_REPAIR2',		-- Repair
 	'LIB_IF_GAMECAMERAACTION_UNLOCK',		-- Unlock
-	'LIB_IF_GAMECAMERAACTION_OPEN',		-- Open
+	'LIB_IF_GAMECAMERAACTION_OPEN',			-- Open
 	'',-- LIB_IF_GAMECAMERAACTION_			= 14	-- SI_GAMECAMERAACTIONTYPE14 is nil
-	'LIB_IF_GAMECAMERAACTION_EXAMINE',	-- Examine
-	'LIB_IF_GAMECAMERAACTION_FISH',		-- Fish
+	'LIB_IF_GAMECAMERAACTION_EXAMINE',		-- Examine
+	'LIB_IF_GAMECAMERAACTION_FISH',			-- Fish
 	'LIB_IF_GAMECAMERAACTION_REELIN',		-- Reel In
 	'LIB_IF_GAMECAMERAACTION_PACKUP',		-- Pack Up
 	'LIB_IF_GAMECAMERAACTION_STEAL',		-- Steal
 	'LIB_IF_GAMECAMERAACTION_STEALFROM',	-- Steal from
 	'LIB_IF_GAMECAMERAACTION_PICKPOCKET',	-- Pickpocket
 	'',--LIB_IF_GAMECAMERAACTION_			= 22	-- SI_GAMECAMERAACTIONTYPE22 is nil
-	'LIB_IF_GAMECAMERAACTION_TRESPASS',	-- Trespass
-	'LIB_IF_GAMECAMERAACTION_HIDE',		-- Hide
-	'LIB_IF_GAMECAMERAACTION_PREVIEW',	-- Preview
-	'LIB_IF_GAMECAMERAACTION_EXIT',		-- Exit
-	'LIB_IF_GAMECAMERAACTION_EXCAVATE',	-- Excavate
-	'LIB_IF_GAMECAMERAACTION_MINE',		-- Mine
-	'LIB_IF_GAMECAMERAACTION_CUT',		-- Cut
-	'LIB_IF_GAMECAMERAACTION_COLLECT',	-- Collect
-	'LIB_IF_GAMECAMERAACTION_COLLECT',	-- Capture
-
+	'LIB_IF_GAMECAMERAACTION_TRESPASS',		-- Trespass
+	'LIB_IF_GAMECAMERAACTION_HIDE',			-- Hide
+	'LIB_IF_GAMECAMERAACTION_PREVIEW',		-- Preview
+	'LIB_IF_GAMECAMERAACTION_EXIT',			-- Exit
+	'LIB_IF_GAMECAMERAACTION_EXCAVATE',		-- Excavate
+	
+	-- From in game actions
+	'LIB_IF_GAMECAMERAACTION_MINE',			-- Mine
+	'LIB_IF_GAMECAMERAACTION_CUT',			-- Cut
+	'LIB_IF_GAMECAMERAACTION_COLLECT',		-- Collect
+	'LIB_IF_GAMECAMERAACTION_CAPTURE',		-- Capture
 }
 
--- "Registring" the actionTypes to global
-for i, actionType in ipairs(actionTypes) do
+-- "Registring" the actionIds to global
+for i, actionType in ipairs(actionIds) do
 	if actionType ~= '' then
 		_G[actionType] = i
 	end
 end
 
------------------------------------------------------------------------------
--- 
------------------------------------------------------------------------------
--- Lets just clone the default strings as our own.
-for i=1, 27 do
-	_G['SI_LIB_IF_GAMECAMERAACTION' .. i] = _G['SI_GAMECAMERAACTIONTYPE' .. i]
+-- Register strings
+local currentLang = GetCVar("Language.2")
+do
+	local currentStrings = lib.localization[currentLang]
+	if currentStrings == nil then
+		currentStrings = lib.localization['en']
+	end
+
+	for i, action in ipairs(currentStrings) do
+		if action ~= '' then
+			local stringId = 'SI_LIB_IF_GAMECAMERAACTION' .. i
+			ZO_CreateStringId(stringId, action)
+			SafeAddVersion(stringId, 1)
+		end
+	end
+end
+
+-- Generate action localization table
+do
+	local localizationStings = lib.localization
+	lib.localization = {}
+	for k, lang in pairs({"en", "de", "fr", "ru"}) do
+		local actionTable = localizationStings[lang]
+		for i, action in ipairs(actionTable) do
+			if action ~= '' then
+				local localizedAction = lib.localization[i] or {}
+				localizedAction[lang] = action
+				lib.localization[i] = localizedAction
+			end
+		end
+	end
 end
 
 -----------------------------------------------------------------------------
@@ -197,7 +221,15 @@ function lib.GetAllActionsInfo()
 	return actionsInfo
 end
 
+function lib:GetActionTranslation(actionId, toLang)
+	local localizedAction = self.localization[actionId]
+
+	return zo_strformat('[<<1>>] = <<2>> >> <<3>>', actionId, localizedAction[currentLang], localizedAction[toLang])
+end
+
 LIB_INTERACTION_HOOK = lib
+--	/script d(LIB_INTERACTION_HOOK:GetActionTranslation(LIB_IF_GAMECAMERAACTION_UNLOCK, "de"))
+-- >>>  [12] = Unlock >> Aufschlieben
 --	/script LIB_INTERACTION_HOOK.ListAllActionsInfo()
 --	/tb LIB_INTERACTION_HOOK.GetAllActionsInfo()
 --	/tb LIB_INTERACTION_HOOK:GetAllActionsInfo()

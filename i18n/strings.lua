@@ -1,19 +1,51 @@
+
+local LIB_IDENTIFIER, LIB_VERSION = "LibInteractionHook", 03
+if _G[LIB_IDENTIFIER] and _G[LIB_IDENTIFIER].version > LIB_VERSION then
+	return
+end
+
+local lib = _G[LIB_IDENTIFIER]
 ------------------------------------------------
 -- English localization
 ------------------------------------------------
-
-local strings = {
-	SI_LIB_IF_GAMECAMERAACTION28 = 'Mine',
-	SI_LIB_IF_GAMECAMERAACTION29 = 'Cut',
-	SI_LIB_IF_GAMECAMERAACTION30 = 'Collect',
-	SI_LIB_IF_GAMECAMERAACTION31 = 'Capture',
+local localization = lib.localization
+localization['en'] = {
+	-- From game actionFilters
+	[1] = "Search",
+	[2] = "Talk",
+	[3] = "Harvest",
+	[4] = "Disarm",
+	[5] = "Use",
+	[6] = "Read",
+	[7] = "Take",
+	[8] = "Destroy",
+	[9] = "Repair",
+	[10] = "Inspect",
+	[11] = "Repair",
+	[12] = "Unlock",
+	[13] = "Open",
+	[14] = "",
+	[15] = "Examine",
+	[16] = "Fish",
+	[17] = "Reel In",
+	[18] = "Pack Up",
+	[19] = "Steal",
+	[20] = "Steal From",
+	[21] = "Pickpocket",
+	[22] = "",
+	[23] = "Trespass",
+	[24] = "Hide",
+	[25] = "Preview",
+	[26] = "Exit Home",
+	[27] = "Excavate",
+	
+	-- From in game actions
+	[28] = 'Mine',
+	[29] = 'Cut',
+	[30] = 'Collect',
+	[31] = 'Capture',
 }
-
-for stringId, stringValue in pairs(strings) do
-	ZO_CreateStringId(stringId, stringValue)
-	SafeAddVersion(stringId, 1)
-end
-
+lib.localization = localization
 --[[
 	LIB_IF_ACTIONTYPE_SEARCH		= 1		-- Search - loot
 	LIB_IF_ACTIONTYPE_TALK			= 2		-- Talk

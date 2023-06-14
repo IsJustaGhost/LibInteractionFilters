@@ -1,58 +1,48 @@
+
+local LIB_IDENTIFIER, LIB_VERSION = "LibInteractionHook", 03
+if _G[LIB_IDENTIFIER] and _G[LIB_IDENTIFIER].version > LIB_VERSION then
+	return
+end
+
+local lib = _G[LIB_IDENTIFIER]
 ------------------------------------------------
 -- French localization
 ------------------------------------------------
--- Courtesy of fzr6n7
-local strings = {
-	SI_LIB_IF_GAMECAMERAACTION28 = 'Extraire',
-	SI_LIB_IF_GAMECAMERAACTION29 = 'Couper',
-	SI_LIB_IF_GAMECAMERAACTION30 = 'Ramasser',
-	SI_LIB_IF_GAMECAMERAACTION31 = 'Capture',
+local localization = lib.localization
+localization['fr'] = {
+	-- From game actionFilters
+	[1] = "Fouiller",			-- search
+	[2] = "Parler",				-- talk
+	[3] = "Récolter",			-- harvest
+	[4] = "Désarmer",			-- disarm
+	[5] = "Utiliser",			-- use
+	[6] = "Lire",				-- read
+	[7] = "Prendre",				-- take
+	[8] = "Détruire",			-- destroy
+	[9] = "Réparer",				-- repair
+	[10] = "Inspecter",			-- inspect
+	[11] = "Réparer",			-- repair
+	[12] = "Déverrouiller",		-- unlock
+	[13] = "Ouvrir",				-- Open
+	[14] = "",
+	[15] = "Examiner",			-- Examine
+	[16] = "Pêcher",				-- Fish
+	[17] = "Ramener la ligne",	-- Reel In
+	[18] = "Faire vos Paquetages",-- Pack Up
+	[19] = "Voler",				-- Steal
+	[20] = "Piller",				-- Steal From
+	[21] = "Voler à la tire",	-- Pickpocket
+	[22] = "",
+	[23] = "Entrer par effraction",-- Trespass
+	[24] = "Se cacher",			-- Hide
+	[25] = "Aperçu",				-- Preview
+	[26] = "Quitter",			-- Exit Home
+	[27] = "Excaver",			-- Excavate
+
+	-- From in game actions
+	[28] = 'Extraire',				-- Mine
+	[29] = 'Couper',				-- Cut
+	[30] = 'Ramasser',				-- Collect
+	[31] = 'Capture',				-- Capture
 }
-
-for stringId, stringValue in pairs(strings) do
-	SafeAddString(stringId, stringValue, 2)
---	SafeAddVersion(_G[stringId], 1)
-end
-
-
---[[
-	LIB_IF_GAMECAMERAACTION_SEARCH		= 1		-- Fouiller
-	LIB_IF_GAMECAMERAACTION_TALK			= 2		-- Parler
-	LIB_IF_GAMECAMERAACTION_HARVEST		= 3		-- Récolter
-	LIB_IF_GAMECAMERAACTION_DISARM		= 4		-- Désarmer
-	LIB_IF_GAMECAMERAACTION_USE			= 5		-- Utiliser
-	LIB_IF_GAMECAMERAACTION_READ			= 6		-- Lire
-	LIB_IF_GAMECAMERAACTION_TAKE			= 7		-- Prendre
-	LIB_IF_GAMECAMERAACTION_DESTROY		= 8		-- Détruire
-	LIB_IF_GAMECAMERAACTION_REPAIR		= 9		-- Réparer
-	LIB_IF_GAMECAMERAACTION_INSPECT		= 10	-- Inspecter
-	LIB_IF_GAMECAMERAACTION_REPAIR2		= 11	-- Réparer
-	LIB_IF_GAMECAMERAACTION_UNLOCK		= 12	-- Déverrouiller
-	LIB_IF_GAMECAMERAACTION_OPEN			= 13	-- Ouvrir
-	-- LIB_IF_GAMECAMERAACTION_			= 14	-- SI_GAMECAMERAACTIONTYPE14 is nil
-	LIB_IF_GAMECAMERAACTION_EXAMINE		= 15	-- Examiner
-	LIB_IF_GAMECAMERAACTION_FISH			= 16	-- Pêcher
-	LIB_IF_GAMECAMERAACTION_REELIN		= 17	-- Ramener la ligne
-	LIB_IF_GAMECAMERAACTION_PACKUP		= 18	-- Faire vos Paquetages
-	LIB_IF_GAMECAMERAACTION_STEAL			= 19	-- Voler
-	LIB_IF_GAMECAMERAACTION_STEALFROM		= 20	-- Piller
-	LIB_IF_GAMECAMERAACTION_PICKPOCKET	= 21	-- Voler à la tire
-	--LIB_IF_GAMECAMERAACTION_			= 22	-- SI_GAMECAMERAACTIONTYPE22 is nil
-	LIB_IF_GAMECAMERAACTION_TRESPASS		= 23	-- Entrer par effraction
-	LIB_IF_GAMECAMERAACTION_HIDE			= 24	-- Se cacher
-	LIB_IF_GAMECAMERAACTION_PREVIEW		= 25	-- Aperçu
-	LIB_IF_GAMECAMERAACTION_EXIT			= 26	-- Quitter
-	LIB_IF_GAMECAMERAACTION_EXCAVATE		= 27	-- Excaver
-	
-	LIB_IF_GAMECAMERAACTION_MINE			= 28	-- Extraire
-	LIB_IF_GAMECAMERAACTION_CUT			= 29	-- Couper
-	LIB_IF_GAMECAMERAACTION_COLLECT		= 30	-- Ramasser
-	LIB_IF_GAMECAMERAACTION_COLLECT		= 31	-- Capture
-	
-	
-
-
-/script SetCVar("language.2", "fr")
-/script for i=1, 40 do d(i .. ' ' .. GetString("SI_GAMECAMERAACTIONTYPE", i)) end
-
---]]
+lib.localization = localization
