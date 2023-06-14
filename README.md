@@ -33,7 +33,7 @@ end
 -- Register for any action by ommiting actionName
 	LIB_INTERACTION_HOOK:RegisterOnTryHandlingInteraction("Addon_Name",  tryHandlingInteraction)
 ```
-The function, isActionDisabled, is the filter used in [URL="https://www.esoui.com/downloads/info3136-IsJustaDisableActionsWhileMoving.html"]IsJusta Disable Actions While Moving[/URL].
+The function, isActionDisabled, is the filter used in version 2.1 and above of, https://www.esoui.com/downloads/info3136-IsJustaDisableActionsWhileMoving.html.
 		
 Filters may also be unregistered.
 ```
