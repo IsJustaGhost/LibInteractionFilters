@@ -69,16 +69,16 @@ for i, actionType in ipairs(actionIds) do
 end
 
 -- Register strings
-local currentLang = GetCVar("Language.2")
+local currentLang
 do
 	-- If currentLang is not in localization then default to en.
 	local function getCurrentLang(lang)
 		if not lib.localization[lang] then
 			return getCurrentLang("en")
 		end
-		currentLang = lang
+		return lang
 	end
-	getCurrentLang(currentLang)
+	currentLang = getCurrentLang(GetCVar("Language.2"))
 
 	local currentStrings = lib.localization[currentLang]
 
@@ -94,6 +94,7 @@ end
 -- Generate action localization table
 do
 	local localizationStings = lib.localization
+	-- Reporpus lib.localization for traslated actions table.
 	lib.localization = {}
 	for k, lang in pairs({"en", "de", "fr", "ru"}) do
 		local actionTable = localizationStings[lang]
