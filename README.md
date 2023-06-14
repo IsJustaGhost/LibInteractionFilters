@@ -5,7 +5,7 @@ In gamepad mode, the method this uses to disable target interactions does not pr
 Disabled interactions are not hidden but, the keybind button and action are grayed out. <br>
 If hiding the interaction is desired, adding "LIB_INTERACTION_HOOK:HideInteraction()" to the registered function is all that's needed.
 
-Functions are registered, by add-on, per action with the actionName("Talk"), or the stringId, (SI_LIB_IF_GAMECAMERAACTIONTYPE2)<br>
+Functions are registered, by add-on, per action with the actionName("Talk"), or the stringId, (SI_LIB_IF_GAMECAMERAACTION2)<br>
 "lib.actionFilters[action][registerdName] = function"<br>
 Or, by addon, for any action, by ommiting the action while registering.<br>
 "lib.actionFilters['Any Action'][registerdName] = function"<br>
