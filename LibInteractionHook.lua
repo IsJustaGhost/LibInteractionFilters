@@ -7,7 +7,7 @@ lib.GetLocalizedStringForAction(action, lang)
 	return langTable[lang], langTable[GetCVar("Language.2")] -- format the strings
 
 
-	LIB_IF_ACTIONTYPE_ANY ?
+	LIB_IF_GAMECAMERAACTION_ANY ?
 ]]
 
 
@@ -28,37 +28,37 @@ lib.actionTypes = lib_actionTypes
 -- actionTypes
 -----------------------------------------------------------------------------
 local actionTypes = {
-	'LIB_IF_ACTIONTYPE_SEARCH',		-- Search - loot
-	'LIB_IF_ACTIONTYPE_TALK',		-- Talk
-	'LIB_IF_ACTIONTYPE_HARVEST',	-- Harvest (Mine, Cut, Collect)
-	'LIB_IF_ACTIONTYPE_DISARM',		-- Disarm
-	'LIB_IF_ACTIONTYPE_USE',		-- Use
-	'LIB_IF_ACTIONTYPE_READ',		-- Read
-	'LIB_IF_ACTIONTYPE_TAKE',		-- Take
-	'LIB_IF_ACTIONTYPE_DESTROY',	-- Destroy
-	'LIB_IF_ACTIONTYPE_REPAIR',		-- Repair
-	'LIB_IF_ACTIONTYPE_INSPECT',	-- Inspect
-	'LIB_IF_ACTIONTYPE_REPAIR2',	-- Repair
-	'LIB_IF_ACTIONTYPE_UNLOCK',		-- Unlock
-	'LIB_IF_ACTIONTYPE_OPEN',		-- Open
-	'',-- LIB_IF_ACTIONTYPE_			= 14	-- SI_GAMECAMERAACTIONTYPE14 is nil
-	'LIB_IF_ACTIONTYPE_EXAMINE',	-- Examine
-	'LIB_IF_ACTIONTYPE_FISH',		-- Fish
-	'LIB_IF_ACTIONTYPE_REELIN',		-- Reel In
-	'LIB_IF_ACTIONTYPE_PACKUP',		-- Pack Up
-	'LIB_IF_ACTIONTYPE_STEAL',		-- Steal
-	'LIB_IF_ACTIONTYPE_STEALFROM',	-- Steal from
-	'LIB_IF_ACTIONTYPE_PICKPOCKET',	-- Pickpocket
-	'',--LIB_IF_ACTIONTYPE_			= 22	-- SI_GAMECAMERAACTIONTYPE22 is nil
-	'LIB_IF_ACTIONTYPE_TRESPASS',	-- Trespass
-	'LIB_IF_ACTIONTYPE_HIDE',		-- Hide
-	'LIB_IF_ACTIONTYPE_PREVIEW',	-- Preview
-	'LIB_IF_ACTIONTYPE_EXIT',		-- Exit
-	'LIB_IF_ACTIONTYPE_EXCAVATE',	-- Excavate
-	'LIB_IF_ACTIONTYPE_MINE',		-- Mine
-	'LIB_IF_ACTIONTYPE_CUT',		-- Cut
-	'LIB_IF_ACTIONTYPE_COLLECT',	-- Collect
-	'LIB_IF_ACTIONTYPE_COLLECT',	-- Capture
+	'LIB_IF_GAMECAMERAACTION_SEARCH',		-- Search - loot
+	'LIB_IF_GAMECAMERAACTION_TALK',		-- Talk
+	'LIB_IF_GAMECAMERAACTION_HARVEST',	-- Harvest (Mine, Cut, Collect)
+	'LIB_IF_GAMECAMERAACTION_DISARM',		-- Disarm
+	'LIB_IF_GAMECAMERAACTION_USE',		-- Use
+	'LIB_IF_GAMECAMERAACTION_READ',		-- Read
+	'LIB_IF_GAMECAMERAACTION_TAKE',		-- Take
+	'LIB_IF_GAMECAMERAACTION_DESTROY',	-- Destroy
+	'LIB_IF_GAMECAMERAACTION_REPAIR',		-- Repair
+	'LIB_IF_GAMECAMERAACTION_INSPECT',	-- Inspect
+	'LIB_IF_GAMECAMERAACTION_REPAIR2',	-- Repair
+	'LIB_IF_GAMECAMERAACTION_UNLOCK',		-- Unlock
+	'LIB_IF_GAMECAMERAACTION_OPEN',		-- Open
+	'',-- LIB_IF_GAMECAMERAACTION_			= 14	-- SI_GAMECAMERAACTIONTYPE14 is nil
+	'LIB_IF_GAMECAMERAACTION_EXAMINE',	-- Examine
+	'LIB_IF_GAMECAMERAACTION_FISH',		-- Fish
+	'LIB_IF_GAMECAMERAACTION_REELIN',		-- Reel In
+	'LIB_IF_GAMECAMERAACTION_PACKUP',		-- Pack Up
+	'LIB_IF_GAMECAMERAACTION_STEAL',		-- Steal
+	'LIB_IF_GAMECAMERAACTION_STEALFROM',	-- Steal from
+	'LIB_IF_GAMECAMERAACTION_PICKPOCKET',	-- Pickpocket
+	'',--LIB_IF_GAMECAMERAACTION_			= 22	-- SI_GAMECAMERAACTIONTYPE22 is nil
+	'LIB_IF_GAMECAMERAACTION_TRESPASS',	-- Trespass
+	'LIB_IF_GAMECAMERAACTION_HIDE',		-- Hide
+	'LIB_IF_GAMECAMERAACTION_PREVIEW',	-- Preview
+	'LIB_IF_GAMECAMERAACTION_EXIT',		-- Exit
+	'LIB_IF_GAMECAMERAACTION_EXCAVATE',	-- Excavate
+	'LIB_IF_GAMECAMERAACTION_MINE',		-- Mine
+	'LIB_IF_GAMECAMERAACTION_CUT',		-- Cut
+	'LIB_IF_GAMECAMERAACTION_COLLECT',	-- Collect
+	'LIB_IF_GAMECAMERAACTION_COLLECT',	-- Capture
 
 }
 
@@ -74,7 +74,7 @@ end
 -----------------------------------------------------------------------------
 -- Lets just clone the default strings as our own.
 for i=1, 27 do
-	_G['SI_LIB_IF_GAMECAMERAACTIONTYPE' .. i] = _G['SI_GAMECAMERAACTIONTYPE' .. i]
+	_G['SI_LIB_IF_GAMECAMERAACTION' .. i] = _G['SI_GAMECAMERAACTIONTYPE' .. i]
 end
 
 -----------------------------------------------------------------------------
@@ -176,7 +176,7 @@ end
 function lib.ListAllActionsInfo()
 	for i, actionType in ipairs(actionTypes) do
 		if actionType ~= '' then
-			d( zo_strformat('<<1>> = <<2>>, String = <<3>>', actionType, i, GetString('SI_LIB_IF_GAMECAMERAACTIONTYPE', i)))
+			d( zo_strformat('<<1>> = <<2>>, String = <<3>>', actionType, i, GetString('SI_LIB_IF_GAMECAMERAACTION', i)))
 		end
 	end
 end
@@ -189,7 +189,7 @@ function lib.GetAllActionsInfo()
 			local newEntry = {
 					actionType = i,
 					constant = actionType,
-					action = GetString('SI_LIB_IF_GAMECAMERAACTIONTYPE', i)
+					action = GetString('SI_LIB_IF_GAMECAMERAACTION', i)
 				}
 			table.insert(actionsInfo, newEntry)
 		end

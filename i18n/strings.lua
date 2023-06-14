@@ -3,10 +3,10 @@
 ------------------------------------------------
 
 local strings = {
-	SI_LIB_IF_GAMECAMERAACTIONTYPE28 = 'Mine',
-	SI_LIB_IF_GAMECAMERAACTIONTYPE29 = 'Cut',
-	SI_LIB_IF_GAMECAMERAACTIONTYPE30 = 'Collect',
-	SI_LIB_IF_GAMECAMERAACTIONTYPE31 = 'Capture',
+	SI_LIB_IF_GAMECAMERAACTION28 = 'Mine',
+	SI_LIB_IF_GAMECAMERAACTION29 = 'Cut',
+	SI_LIB_IF_GAMECAMERAACTION30 = 'Collect',
+	SI_LIB_IF_GAMECAMERAACTION31 = 'Capture',
 }
 
 for stringId, stringValue in pairs(strings) do
