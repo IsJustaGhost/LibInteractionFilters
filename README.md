@@ -1,9 +1,9 @@
-This library is used to hook "RETICLE:TryHandlingInteraction", and can be used to effectively disable target interactions, by registering functions.<br>
+This library is used as a alternitive method to hooking "RETICLE:TryHandlingInteraction", and can be used to effectively disable target interactions, by registering functions.<br>
 Interaction states are near instantly updated on looking away from the current target, or on state desireability changed in the registerd functions<br>
 
 In gamepad mode, the method this uses to disable target interactions does not prevent jumping.<br>
 Disabled interactions are not hidden but, the keybind button and action are grayed out. <br>
-If hiding the interaction is desired, adding "LIB_INTERACTION_HOOK:HideInteraction()" to the registered function is all that's needed.
+If hiding the interaction is desired, adding "LibInteractionHook.HideInteraction()" to the registered function is all that's needed.
 
 Functions are registered, by add-on, per action with the actionName("Talk"), or the stringId, (SI_LIB_IF_GAMECAMERAACTION2)<br>
 "lib.actionFilters[action][registerdName] = function"<br>
