@@ -153,17 +153,18 @@ function lib.OnTryHandelingInteraction(...)
 	local action, interactableName = GetGameCameraInteractableActionInfo()
 
 	lib.interactionDisabled = lib.IsInteractionDisabled(action, interactableName, ...)
-	if lib.interactionDisabled then
-		-- set the interaction as blocked, to gray out the keybind
-		lib_reticle.interactionBlocked = lib.interactionDisabled
-	end
+	return lib.interactionDisabled
 end
 
+-- lib_reticle:RequestHidden(true)
+-- lib_reticle:RequestHidden(false)
+-----------------------------------------------------------------------------
+-- Interaction manipualtion
+-----------------------------------------------------------------------------
 function lib.HideInteraction()
 	lib_reticle.interact:SetHidden(true)
 end
--- lib_reticle:RequestHidden(true)
--- lib_reticle:RequestHidden(false)
+
 -----------------------------------------------------------------------------
 -- Un/Register
 -----------------------------------------------------------------------------
@@ -270,7 +271,10 @@ SecurePostHook(lib_reticle, "UpdateInteractText", function(self, currentFrameTim
 
 	local interactionExists, _, questInteraction = GetGameCameraInteractableInfo()
 	if interactionExists and not questInteraction then
-		lib.OnTryHandelingInteraction(currentFrameTimeSeconds)
+		-- Since this is now happening after the keybind button state was set, we'll do it here to change it if disabled.
+		if lib.OnTryHandelingInteraction(currentFrameTimeSeconds) then
+			self.interactKeybindButton:SetEnabled(false)
+		end
 	end
 end)
 
