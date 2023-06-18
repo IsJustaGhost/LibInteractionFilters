@@ -1,6 +1,14 @@
 --[[
+- - - 3
+○ rewrote much of the library
+○ now supports "en", "de", "fr", "ru", "es", "zh"
+○ passed params are now (action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract, currentFrameTimeSeconds)
+-- this is done so addons do not have to run GetGameCameraInteractableActionInfo to get the information
+○ moved hook to UpdateInteractText so allow hiding the interaction through a function
+-- otherwise, it was not possible to effectively hide the interaction through the lib
+○ 
+○ 
 
-	Still need "es" action strings for ,'Mine', 'Cut', 'Collect', 'Capture'
 ]]
 
 local LIB_IDENTIFIER, LIB_VERSION = "LibInteractionHook", 03
@@ -13,14 +21,14 @@ local ANY_ACTION = 'Any Action'
 local lib_actions = {}
 lib.actions = lib_actions
 
--- Only used once but, I want it here so I can see them. Forgot to put es in there.
+-- Only used once but, I want it here so I can see them.
 local languages = {"en", "de", "fr", "ru", "es", "zh"}
 
 -----------------------------------------------------------------------------
 -- Dynamically generate ActionIds and Localization
 -----------------------------------------------------------------------------
 local function safeAddString(stringId, stringValue, stringVersion)
-	if type(stringId) == "string" then
+	if type(stringId) ~= "number" then
 		-- Attempt to get the stringId from the [string]stringId
 		stringId = _G[stringId] or stringId
 	end
@@ -148,8 +156,9 @@ function lib.OnTryHandelingInteraction(currentFrameTimeSeconds)
 	for k, _action in ipairs({action, ANY_ACTION}) do
 		for callback in lib.IterateSelectedAction(_action) do
 			-- If callback returns true then we know it wants to disable the interaction.
-			-- However, we will let other callbacks to run so the addon can at least get the information.
+			-- However, we will allow other callbacks to run so the registered addon can at least get the information.
 			if callback(action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract, currentFrameTimeSeconds) then
+				-- If it turns out addons themselves can't find a way to deal with compatibility issues, may make this return true
 				isDisabled = true
 			end
 		end
@@ -258,11 +267,11 @@ function lib.GetActionTranslation(actionId, toLang)
 end
 
 --LIB_INTERACTION_HOOK = lib
---	/script d(LIB_INTERACTION_HOOK:GetActionTranslation(LIB_IF_GAMECAMERAACTION_UNLOCK, "de"))
+--	/script d(LibInteractionHook:GetActionTranslation(LIB_IF_GAMECAMERAACTION_UNLOCK, "de"))
 -- "[12] = Unlock >> Aufschlieben"
---	/script LIB_INTERACTION_HOOK.ListAllActionsInfo()
---	/tb LIB_INTERACTION_HOOK.GetAllActionsInfo()
---	/tb LIB_INTERACTION_HOOK:GetAllActionsInfo()
+--	/script LibInteractionHook.ListAllActionsInfo()
+--	/tb LibInteractionHook.GetAllActionsInfo()
+--	/tb LibInteractionHook:GetAllActionsInfo()
 -----------------------------------------------------------------------------
 -- Hook
 -----------------------------------------------------------------------------
@@ -320,3 +329,126 @@ function INTERACTIVE_WHEEL_MANAGER:StartInteraction(interactiveWheelType)
 	end
 	return result
 end
+
+
+--[[EXAMPLES:
+To register a function
+local registerOnTryHandlingInteraction = LibInteractionHook.RegisterOnTryHandlingInteraction
+To unregister a function
+local unregisterOnTryHandlingInteraction = LibInteractionHook.UnregisterOnTryHandlingInteraction
+To set the color of the additional info
+local setAdditionalInfoColor = LibInteractionHook.SetAdditionalInfoColor
+To set the color of the keybind button text color
+local setInteractKeybindButtonColor = LibInteractionHook.SetInteractKeybindButtonColor
+To hide interactions
+local hideInteraction = LibInteractionHook.HideInteraction
+
+The following examples are only used to disable interaction
+---------------------------------------------------------------
+local actionsTable = {
+	-- Can use the strings or stringId
+	[SI_LIB_IF_GAMECAMERAACTION1]	= true,
+	[SI_LIB_IF_GAMECAMERAACTION2]	= true,
+	[SI_LIB_IF_GAMECAMERAACTION3]	= true,
+	[GetString("SI_LIB_IF_GAMECAMERAACTION", 4)]	= true,
+	[GetString("SI_LIB_IF_GAMECAMERAACTION", 5)]	= true,
+	[GetString("SI_LIB_IF_GAMECAMERAACTION", 6)]	= true,
+	[GetString("SI_LIB_IF_GAMECAMERAACTION", 7)]	= true,
+	[GetString("SI_LIB_IF_GAMECAMERAACTION", 12)]	= true,
+	[GetString("SI_LIB_IF_GAMECAMERAACTION", 13)]	= true,
+	[GetString("SI_LIB_IF_GAMECAMERAACTION", 15)]	= true,
+	[GetString("SI_LIB_IF_GAMECAMERAACTION", 16)]	= true,
+	[GetString("SI_LIB_IF_GAMECAMERAACTION", 19)]	= true,
+	[GetString("SI_LIB_IF_GAMECAMERAACTION", 20)]	= true,
+	[GetString("SI_LIB_IF_GAMECAMERAACTION", 24)]	= true,
+	[GetString("SI_LIB_IF_GAMECAMERAACTION", 27)]	= true,
+}
+
+for actionName, i in pairs(actionsTable) do
+	registerOnTryHandlingInteraction(self.name, actionName, function(action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract, currentFrameTimeSeconds)
+		-- There is no need to check for if interactionIsPossibel, this will only run if it is.
+
+		-- Is this filer enabled?
+		if disabledInteractions(action, interactableName) then
+			-- Should this action be disabled?
+			if isActionDisabled(action, interactableName, currentFrameTimeSeconds) then
+				return true
+			end
+		end
+		return false
+	end)
+
+---------------------------------------------------------------
+	actionName = GetString(SI_LIB_IF_GAMECAMERAACTION1) or SI_LIB_IF_GAMECAMERAACTION1 or "Search"
+
+	registerOnTryHandlingInteraction(self.name, actionName, function(action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract, currentFrameTimeSeconds)
+		-- There is no need to check for if interactionIsPossibel, this will only run if it is.
+
+		-- Is this filer enabled?
+		if disabledInteractions(action, interactableName) then
+			-- Should this action be disabled?
+			if isActionDisabled(action, interactableName, currentFrameTimeSeconds) then
+				return true
+			end
+		end
+		return false
+	end)
+	
+---------------------------------------------------------------
+	Here actionName is ommited to register for any action
+
+	registerOnTryHandlingInteraction(self.name, function(action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract, currentFrameTimeSeconds)
+		-- There is no need to check for if interactionIsPossibel, this will only run if it is.
+
+		-- Is this filer enabled?
+		if disabledInteractions(action, interactableName) then
+			-- Should this action be disabled?
+			if isActionDisabled(action, interactableName, currentFrameTimeSeconds) then
+				hideInteraction()
+				return true
+			end
+		end
+		return false
+	end)
+
+	This example will hide the interaction
+---------------------------------------------------------------
+	registerOnTryHandlingInteraction(self.name, function(action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract, currentFrameTimeSeconds)
+		-- There is no need to check for if interactionIsPossibel, this will only run if it is.
+
+		-- Is this filer enabled?
+		if disabledInteractions(action, interactableName) then
+			-- Should this action be disabled?
+			if isActionDisabled(action, interactableName, currentFrameTimeSeconds) then
+				hideInteraction()
+				return true
+			end
+		end
+		return false
+	end)
+
+
+	This example modifies the interaction text using additional functions to get the specific information changes needed for this addon.
+---------------------------------------------------------------
+	registerOnTryHandlingInteraction(self.name, function(action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract, currentFrameTimeSeconds)
+		if action and interactableName then
+			if self.savedVars.eventActive and self:IsTargetForTickets(interactableName) then
+				local additionalInfoText, interactKeybindButtonText, interactionBlocked, interactKeybindButtonColor, additionalInfoLabelColor = getInterationInfo(action, interactableName)
+				
+				object.interactKeybindButton:ShowKeyIcon()
+				object.interact:SetHidden(false)
+				
+				object.interactContext:SetText(interactableName) -- "Jubilee Cake" .. currentYear
+	------------------------------------additionalInfo----------------------------------------------------
+				object.additionalInfo:SetText(additionalInfoText) -- "Tickets Available" or time remaining
+				object.additionalInfo:SetColor(additionalInfoLabelColor:UnpackRGBA())
+				object.additionalInfo:SetHidden(false)
+				
+	------------------------------------------------------------------------------------------------------
+				object.interactKeybindButton:SetText(interactKeybindButtonText) -- cur/max Use or Use
+				object.interactKeybindButton:SetNormalTextColor(interactKeybindButtonColor)
+				return interactionBlocked
+			end
+		end
+	end)
+]]
