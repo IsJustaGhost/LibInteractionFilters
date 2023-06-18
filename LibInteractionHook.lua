@@ -1,16 +1,7 @@
 --[[
-	TODO:
-	Look into making a way to be able to call localized strings
 
-lib.GetLocalizedStringForAction(action, lang)
-	local langTable = allTheActionStrings[action]
-	return langTable[lang], langTable[GetCVar("Language.2")] -- format the strings
-
-
-	LIB_IF_GAMECAMERAACTION_ANY ?
+	Still need "es" action strings for ,'Mine', 'Cut', 'Collect', 'Capture'
 ]]
-
-
 
 local LIB_IDENTIFIER, LIB_VERSION = "LibInteractionHook", 03
 if _G[LIB_IDENTIFIER] and _G[LIB_IDENTIFIER].version > LIB_VERSION then
@@ -22,12 +13,29 @@ local ANY_ACTION = 'Any Action'
 local lib_actions = {}
 lib.actions = lib_actions
 
--- Only used once, but I want it here so I can see them. Forgot to put es in there.
+-- Only used once but, I want it here so I can see them. Forgot to put es in there.
 local languages = {"en", "de", "fr", "ru", "es"}
 
 -----------------------------------------------------------------------------
 -- Dynamically generate ActionIds and Localization
 -----------------------------------------------------------------------------
+local function safeAddString(stringId, stringValue, stringVersion)
+	if type(stringId) == "string" then
+		-- Attempt to get the stringId from the [string]stringId
+		stringId = _G[stringId] or stringId
+	end
+
+	stringVersion = stringVersion or 1
+	if type(stringId) == "number" then
+		-- The stringId actually exsists so try to update it based on versions.
+		SafeAddString(stringId, stringValue, stringVersion)
+	else
+		-- The stringId does not exist so create a new one.
+		ZO_CreateStringId(stringId, stringValue)
+    end
+	SafeAddVersion(stringId, stringVersion)
+end
+
 local actionIds = {
 	-- From game actionFilters
 	'LIB_IF_GAMECAMERAACTION_SEARCH',		-- Search - loot
@@ -89,8 +97,7 @@ do
 	for i, action in ipairs(currentStrings) do
 		if action ~= '' then
 			local stringId = 'SI_LIB_IF_GAMECAMERAACTION' .. i
-			ZO_CreateStringId(stringId, action)
-			SafeAddVersion(stringId, 1)
+			safeAddString(stringId, action, 1)
 		end
 	end
 end
@@ -133,34 +140,42 @@ function lib.IterateSelectedAction(action)
 	end
 end
 
--- where ... = interactableName, currentFrameTimeSeconds
-function lib.IsInteractionDisabled(action, ...)
-	local isDisabled = false
+function lib.OnTryHandelingInteraction(currentFrameTimeSeconds)
+	local action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract = GetGameCameraInteractableActionInfo()
 
+	local isDisabled = false
+	-- Only functions registered for the current target interaction action and those registered with no action will run.
 	for k, _action in ipairs({action, ANY_ACTION}) do
 		for callback in lib.IterateSelectedAction(_action) do
-			if callback(action, ...) then
+			-- If callback returns true then we know it wants to disable the interaction.
+			-- However, we will let other callbacks to run so the addon can at least get the information.
+			if callback(action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract, currentFrameTimeSeconds) then
 				isDisabled = true
 			end
 		end
 	end
 
-	return isDisabled
-end
-
--- where ... = currentFrameTimeSeconds
-function lib.OnTryHandelingInteraction(...)
-	local action, interactableName = GetGameCameraInteractableActionInfo()
-
-	lib.interactionDisabled = lib.IsInteractionDisabled(action, interactableName, ...)
+	lib.interactionDisabled = isDisabled
 	return lib.interactionDisabled
 end
 
 -- lib_reticle:RequestHidden(true)
 -- lib_reticle:RequestHidden(false)
 -----------------------------------------------------------------------------
--- Interaction manipualtion
+-- Interaction info manipualtion
 -----------------------------------------------------------------------------
+-- Example: interactKeybindButtonColor = ZO_SUCCEEDED_TEXT
+function lib.SetInteractKeybindButtonColor(interactKeybindButtonColor)
+	lib_reticle.interactKeybindButton:SetNormalTextColor(interactKeybindButtonColor)
+end
+
+-- Example: SetAdditionalInfoColor(ZO_SUCCEEDED_TEXT:UnpackRGBA())
+-- where ... = [num]a, [num]g, [num]b, [num]r
+function lib.SetAdditionalInfoColor(...)
+	-- Must be unpacked: 
+	lib_reticle.additionalInfo:SetColor(...)
+end
+
 function lib.HideInteraction()
 	lib_reticle.interact:SetHidden(true)
 end
@@ -183,7 +198,7 @@ function lib.RegisterOnTryHandlingInteraction(registerdName, action, callback)
 	local actionTable = lib_actions[action] or {}
 	lib_actions[action] = actionTable
 	
-	-- where ... = action, interactableName, currentFrameTimeSeconds
+	-- where ... = action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract, currentFrameTimeSeconds
 	actionTable[registerdName] = function(...)
 		return callback(...)
 	end
@@ -272,6 +287,7 @@ SecurePostHook(lib_reticle, "UpdateInteractText", function(self, currentFrameTim
 	local interactionExists, _, questInteraction = GetGameCameraInteractableInfo()
 	if interactionExists and not questInteraction then
 		-- Since this is now happening after the keybind button state was set, we'll do it here to change it if disabled.
+		-- Setting it disabled only causes it to be faded. That's why other steps have been made to disable interaction.
 		if lib.OnTryHandelingInteraction(currentFrameTimeSeconds) then
 			self.interactKeybindButton:SetEnabled(false)
 		end
@@ -284,6 +300,7 @@ end)
 -- Disabling interaction.
 -----------------------------------------------------------------------------
 -- This must be used in order to allow gamepad users to jump while interation is disabled
+-- It's the check used to see if they should jump or interact. 
 function lib_reticle:GetInteractPromptVisible()
 	if lib.interactionDisabled then
 		return false
@@ -291,7 +308,7 @@ function lib_reticle:GetInteractPromptVisible()
 	return not self.interact:IsHidden()
 end
 
--- This must return true in order to prevent interactions
+-- This must return true in order to prevent interactions in keyboard mode.
 -- Using a hook would return nil, which would allow the interaction to run.
 -- if not INTERACTIVE_WHEEL_MANAGER:StartInteraction(ZO_INTERACTIVE_WHEEL_TYPE_FISHING) then GameCameraInteractStart() end
 local orig_StartInteraction = INTERACTIVE_WHEEL_MANAGER.StartInteraction
