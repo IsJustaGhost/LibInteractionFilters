@@ -13,6 +13,7 @@ i18n\de.lua
 i18n\fr.lua
 i18n\ru.lua
 i18n\es.lua
+i18n\zh.lua
 
 LibInteractionHook.lua
 

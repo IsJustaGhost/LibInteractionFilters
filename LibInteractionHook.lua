@@ -14,7 +14,7 @@ local lib_actions = {}
 lib.actions = lib_actions
 
 -- Only used once but, I want it here so I can see them. Forgot to put es in there.
-local languages = {"en", "de", "fr", "ru", "es"}
+local languages = {"en", "de", "fr", "ru", "es", "zh"}
 
 -----------------------------------------------------------------------------
 -- Dynamically generate ActionIds and Localization
