@@ -40,9 +40,9 @@ localization['es'] = {
 	[27] = "Excavar",		-- Excavate
 
 	-- From in game actions
-	[28] = 'Mine',		-- mine
-	[29] = 'Cut',		-- Cut
-	[30] = 'Collect',		-- Collect
-	[31] = 'Capture',	-- Capture
+	[28] = 'Minar',		-- Mine
+	[29] = 'Cortar',		-- Cut
+	[30] = 'Recoger',		-- Collect
+	[31] = 'Captura',		-- Capture -- from google
 }
 lib.localization = localization

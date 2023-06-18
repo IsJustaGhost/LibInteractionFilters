@@ -40,9 +40,9 @@ localization['zh'] = {
 	[27] = "挖掘",	-- Excavate
 	
 	-- From in game actions
-	[28] = 'Mine',		-- Mine
-	[29] = 'Cut',		-- Cut
-	[30] = 'Collect',		-- Collect
-	[31] = 'Capture',		-- Capture
+	[28] = '开采',		-- Mine
+	[29] = '砍伐',		-- Cut
+	[30] = '收集',		-- Collect
+	[31] = '捕获',		-- Capture -- from google
 }
 lib.localization = localization
