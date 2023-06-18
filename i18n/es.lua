@@ -6,7 +6,7 @@ end
 
 local lib = _G[LIB_IDENTIFIER]
 ------------------------------------------------
--- Russian localization
+-- Spanish localization
 ------------------------------------------------
 local localization = lib.localization
 localization['es'] = {

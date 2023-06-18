@@ -6,7 +6,7 @@ end
 
 local lib = _G[LIB_IDENTIFIER]
 ------------------------------------------------
--- Russian localization
+-- Simplified Chinese localization
 ------------------------------------------------
 local localization = lib.localization
 localization['zh'] = {
