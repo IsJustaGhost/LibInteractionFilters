@@ -1,4 +1,9 @@
 --[[
+- - - 3.0.1
+○ did some cleaning up
+○ changed SetAdditionalInfoColor and added assert
+○ 
+
 - - - 3
 ○ rewrote much of the library
 ○ now supports "en", "de", "fr", "ru", "es", "zh"
@@ -137,7 +142,6 @@ function lib.IterateSelectedAction(action)
 	local nextKey, nextData = next(actionTypes)
 	return function()
 		while nextKey do
-		--	local registerdName, callback = nextKey, nextData
 			local callback = nextData
 			nextKey, nextData = next(actionTypes, nextKey)
 			
@@ -151,7 +155,7 @@ end
 function lib.OnTryHandelingInteraction(currentFrameTimeSeconds)
 	local action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract = GetGameCameraInteractableActionInfo()
 	
-	local isDisabled = false
+	lib.interactionDisabled = false
 	-- Only functions registered for the current target interaction action and those registered with no action will run.
 	for k, _action in ipairs({action, ANY_ACTION}) do
 		for callback in lib.IterateSelectedAction(_action) do
@@ -159,17 +163,14 @@ function lib.OnTryHandelingInteraction(currentFrameTimeSeconds)
 			-- However, we will allow other callbacks to run so the registered addon can at least get the information.
 			if callback(action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract, currentFrameTimeSeconds) then
 				-- If it turns out addons themselves can't find a way to deal with compatibility issues, may make this return true
-				isDisabled = true
+				lib.interactionDisabled = true
 			end
 		end
 	end
 
-	lib.interactionDisabled = isDisabled
 	return lib.interactionDisabled
 end
 
--- lib_reticle:RequestHidden(true)
--- lib_reticle:RequestHidden(false)
 -----------------------------------------------------------------------------
 -- Interaction info manipualtion
 -----------------------------------------------------------------------------
@@ -178,11 +179,11 @@ function lib.SetInteractKeybindButtonColor(interactKeybindButtonColor)
 	lib_reticle.interactKeybindButton:SetNormalTextColor(interactKeybindButtonColor)
 end
 
--- Example: SetAdditionalInfoColor(ZO_SUCCEEDED_TEXT:UnpackRGBA())
--- where ... = [num]a, [num]g, [num]b, [num]r
-function lib.SetAdditionalInfoColor(...)
-	-- Must be unpacked: 
-	lib_reticle.additionalInfo:SetColor(...)
+-- Example: additionalInfoColor = ZO_SUCCEEDED_TEXT
+function lib.SetAdditionalInfoColor(additionalInfoColor)
+	assert(type(additionalInfoColor) == 'table' and additionalInfoColor.UnpackRGBA , 'LibInteractionHook.SetAdditionalInfoColor: Color must be definded by ZO_ColorDef')
+	
+	lib_reticle.additionalInfo:SetColor(additionalInfoColor:UnpackRGBA())
 end
 
 function lib.HideInteraction()
@@ -206,7 +207,7 @@ function lib.RegisterOnTryHandlingInteraction(registerdName, action, callback)
 	end
 	
 	assert(type(registerdName) == 'string' and (callback ~= nil and type(callback) == 'function') and type(action) ~= nil , 
-		string.format("LIB_INTERACTION_FILTERS.RegisterOnTryHandlingInteraction': Your parameters are wrong. Needed types are: ... / Your values are: addonName %q, action %q, filter: %s", tostring(registerdName), tostring(action), tostring(callback)))
+		string.format("LibInteractionHook.RegisterOnTryHandlingInteraction': Your parameters are wrong. Needed types are: ... / Your values are: addonName %q, action %q, filter: %s", tostring(registerdName), tostring(action), tostring(callback)))
 	
 	local actionTable = lib_actions[action] or {}
 	lib_actions[action] = actionTable
@@ -275,12 +276,10 @@ end
 -- "[12] = Unlock >> Aufschlieben"
 --	/script LibInteractionHook.ListAllActionsInfo()
 --	/tb LibInteractionHook.GetAllActionsInfo()
---	/tb LibInteractionHook:GetAllActionsInfo()
 -----------------------------------------------------------------------------
 -- Hook
 -----------------------------------------------------------------------------
--- RETICLE.interactionDisabled is added and used to prevent interaction at INTERACTIVE_WHEEL_MANAGER.StartInteraction()
--- Setting RETICLE.interactionBlocked to true will cause the reticle keybind to turn gray.
+-- lib.interactionDisabled is added and used to prevent interaction at INTERACTIVE_WHEEL_MANAGER.StartInteraction()
 --SecurePostHook(lib_reticle, "TryHandlingInteraction", function(self, currentFrameTimeSeconds)
 
 -- Changing it to use "UpdateInteractText" to make it so that hiding the 
