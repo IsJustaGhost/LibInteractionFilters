@@ -4,7 +4,7 @@
 ○ changed SetAdditionalInfoColor and added assert
 ○ added assert to SetInteractKeybindButtonColor
 ○ added lib.HideNonInteractable()
-○ added assert to getCurrentLang
+○ added debug to getCurrentLang
 ○ 
 
 - - - 3
@@ -102,7 +102,7 @@ do
 	-- If currentLang is not in localization then default to en.
 	local function getCurrentLang(lang)
 		if not lib.localization[lang] then
-			assert(false, 'LibInteractionHook: The current game language is not supported. Contact the author about adding support.')
+			d('LibInteractionHook: The current game language is not supported. Contact the author about adding support.')
 			return getCurrentLang("en")
 		end
 		return lang
