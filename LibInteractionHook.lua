@@ -150,7 +150,7 @@ end
 
 function lib.OnTryHandelingInteraction(currentFrameTimeSeconds)
 	local action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract = GetGameCameraInteractableActionInfo()
-
+	
 	local isDisabled = false
 	-- Only functions registered for the current target interaction action and those registered with no action will run.
 	for k, _action in ipairs({action, ANY_ACTION}) do
@@ -187,6 +187,10 @@ end
 
 function lib.HideInteraction()
 	lib_reticle.interact:SetHidden(true)
+end
+
+function lib.HideNonInteractable()
+	lib_reticle.nonInteract:SetHidden(true)
 end
 
 -----------------------------------------------------------------------------
@@ -316,20 +320,22 @@ function lib_reticle:GetInteractPromptVisible()
 	end
 	return not self.interact:IsHidden()
 end
-
+--[[ Original
+function ZO_Reticle:GetInteractPromptVisible()
+    return not self.interact:IsHidden()
+end
+]]
 -- This must return true in order to prevent interactions in keyboard mode.
 -- Using a hook would return nil, which would allow the interaction to run.
 -- if not INTERACTIVE_WHEEL_MANAGER:StartInteraction(ZO_INTERACTIVE_WHEEL_TYPE_FISHING) then GameCameraInteractStart() end
 local orig_StartInteraction = INTERACTIVE_WHEEL_MANAGER.StartInteraction
 function INTERACTIVE_WHEEL_MANAGER:StartInteraction(interactiveWheelType)
-	-- Lets at least run the original so it can do it's thing before canceling it out to disable interactions.
-	local result = orig_StartInteraction(self, interactiveWheelType)
+	-- ZO_INTERACTIVE_WHEEL_TYPE_FISHING is used for GAME_CAMERA_INTERACT
 	if interactiveWheelType == ZO_INTERACTIVE_WHEEL_TYPE_FISHING and lib.interactionDisabled then
 		return true
 	end
-	return result
+	return orig_StartInteraction(self, interactiveWheelType)
 end
-
 
 --[[EXAMPLES:
 To register a function
@@ -435,20 +441,30 @@ for actionName, i in pairs(actionsTable) do
 			if self.savedVars.eventActive and self:IsTargetForTickets(interactableName) then
 				local additionalInfoText, interactKeybindButtonText, interactionBlocked, interactKeybindButtonColor, additionalInfoLabelColor = getInterationInfo(action, interactableName)
 				
-				object.interactKeybindButton:ShowKeyIcon()
-				object.interact:SetHidden(false)
+				RETICLE.interactKeybindButton:ShowKeyIcon()
+				RETICLE.interact:SetHidden(false)
 				
-				object.interactContext:SetText(interactableName) -- "Jubilee Cake" .. currentYear
+				RETICLE.interactContext:SetText(interactableName) -- "Jubilee Cake" .. currentYear
 	------------------------------------additionalInfo----------------------------------------------------
-				object.additionalInfo:SetText(additionalInfoText) -- "Tickets Available" or time remaining
-				object.additionalInfo:SetColor(additionalInfoLabelColor:UnpackRGBA())
-				object.additionalInfo:SetHidden(false)
+				RETICLE.additionalInfo:SetText(additionalInfoText) -- "Tickets Available" or time remaining
+				RETICLE.additionalInfo:SetColor(additionalInfoLabelColor:UnpackRGBA())
+				RETICLE.additionalInfo:SetHidden(false)
 				
 	------------------------------------------------------------------------------------------------------
-				object.interactKeybindButton:SetText(interactKeybindButtonText) -- cur/max Use or Use
-				object.interactKeybindButton:SetNormalTextColor(interactKeybindButtonColor)
+				RETICLE.interactKeybindButton:SetText(interactKeybindButtonText) -- cur/max Use or Use
+				RETICLE.interactKeybindButton:SetNormalTextColor(interactKeybindButtonColor)
 				return interactionBlocked
 			end
 		end
 	end)
+]]
+
+--[[
+
+	RETICLE.interact:SetHidden(false)
+	RETICLE.interactKeybindButton:SetText(zo_strformat(SI_FORMAT_BULLET_TEXT, GetString(SI_GAME_CAMERA_ACTION_EMPTY)))
+	RETICLE.interactKeybindButton:ShowKeyIcon()
+	RETICLE.interactKeybindButton:HideKeyIcon()
+	RETICLE.additionalInfo:SetHidden(false)
+	RETICLE.additionalInfo:SetText(GetString(SI_HOLD_TO_SELECT_BAIT))
 ]]
