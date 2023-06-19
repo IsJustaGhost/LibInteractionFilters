@@ -17,12 +17,12 @@ local action, interactableName = GetGameCameraInteractableActionInfo()
 ```
 local registerOnTryHandlingInteraction = LibInteractionHook.RegisterOnTryHandlingInteraction
 
-local function tryHandlingInteraction(action, interactableName, interactionPossible, currentFrameTimeSeconds)
+local function tryHandlingInteraction(action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract, currentFrameTimeSeconds)
 	if not interactionPossible then return end
 	if isActionDisabled(action, interactableName, currentFrameTimeSeconds) then
 		-- Disabled
 		-- should it hide it?
-		LIB_INTERACTION_HOOK:HideInteraction()
+		LibInteractionHook:HideInteraction()
 		return true
 	end
 	return false
@@ -47,11 +47,9 @@ local unregisterOnTryHandlingInteraction = LibInteractionHook.UnregisterOnTryHan
 
 Changing the interaction text displayed
 ```
-	local function tryHandlingInteraction(object, action, interactableName, currentFrameTimeSeconds)
+	local function tryHandlingInteraction(object, action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract, currentFrameTimeSeconds)
 		if action and interactableName then
 			if self.savedVars.eventActive then
-				local additionalInfoText, interactKeybindButtonText, interactionBlocked, interactKeybindButtonColor, additionalInfoLabelColor = getInterationInfo(action, interactableName)
-				
 				object.interactContext:SetText(interactableName) -- "Jubilee Cake" .. currentYear
 	------------------------------------additionalInfo----------------------------------------------------
 				object.additionalInfo:SetText(additionalInfoText) -- "Tickets Available" or time remaining
@@ -67,9 +65,9 @@ Changing the interaction text displayed
 		return false
 	end
 	
-	registerOnTryHandlingInteraction(self.name, LIB_IF_GAMECAMERAACTION_USE, function(action, interactableName, currentFrameTimeSeconds)
+	registerOnTryHandlingInteraction(self.name, LIB_IF_GAMECAMERAACTION_USE, function(action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract, currentFrameTimeSeconds)
 		if self:IsTargetForTickets(interactableName) then
-			return tryHandlingInteraction(RETICLE, action, interactableName, currentFrameTimeSeconds)
+			return tryHandlingInteraction(RETICLE, action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract, currentFrameTimeSeconds)
 		end
 	end)
 ```
