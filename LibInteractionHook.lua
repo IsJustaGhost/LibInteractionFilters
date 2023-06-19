@@ -101,7 +101,7 @@ do
 	-- If currentLang is not in localization then default to en.
 	local function getCurrentLang(lang)
 		if not lib.localization[lang] then
-			assert(false, 'LibInteractionHook: The current game language is not supported.')
+			assert(false, 'LibInteractionHook: The current game language is not supported. Contact the author about adding support.')
 			return getCurrentLang("en")
 		end
 		return lang
