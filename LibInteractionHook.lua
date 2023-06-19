@@ -3,6 +3,7 @@
 ○ did some cleaning up
 ○ changed SetAdditionalInfoColor and added assert
 ○ added assert to SetInteractKeybindButtonColor
+○ added lib.HideNonInteractable()
 ○ 
 
 - - - 3
