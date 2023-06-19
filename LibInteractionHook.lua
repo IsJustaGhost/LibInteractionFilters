@@ -2,6 +2,7 @@
 - - - 3.0.1
 ○ did some cleaning up
 ○ changed SetAdditionalInfoColor and added assert
+○ added assert to SetInteractKeybindButtonColor
 ○ 
 
 - - - 3
@@ -176,6 +177,8 @@ end
 -----------------------------------------------------------------------------
 -- Example: interactKeybindButtonColor = ZO_SUCCEEDED_TEXT
 function lib.SetInteractKeybindButtonColor(interactKeybindButtonColor)
+	assert(type(interactKeybindButtonColor) == 'table' and interactKeybindButtonColor.UnpackRGBA , 'LibInteractionHook.SetAdditionalInfoColor: Color must be definded by ZO_ColorDef')
+	
 	lib_reticle.interactKeybindButton:SetNormalTextColor(interactKeybindButtonColor)
 end
 
