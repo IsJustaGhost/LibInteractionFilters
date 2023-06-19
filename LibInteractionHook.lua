@@ -1,9 +1,10 @@
 --[[
-- - - 3.0.1
+- - - 3.1
 ○ did some cleaning up
 ○ changed SetAdditionalInfoColor and added assert
 ○ added assert to SetInteractKeybindButtonColor
 ○ added lib.HideNonInteractable()
+○ added assert to getCurrentLang
 ○ 
 
 - - - 3
