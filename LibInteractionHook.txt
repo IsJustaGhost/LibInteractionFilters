@@ -1,8 +1,8 @@
 ## Title: LibInteractionHook
 ## Author: IsJustaGhost
 ## APIVersion: 101038
-## Version: 3.1
-## AddOnVersion: 03
+## Version: 3.2
+## AddOnVersion: 04
 ## IsLibrary: true
 ## Description: An API For handling interaction filters.
 

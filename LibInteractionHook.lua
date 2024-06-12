@@ -1,4 +1,8 @@
 --[[
+- - - 3.2
+○ Updated P2P updating
+○ fixed interaction getting stuck disabled when non_interaction prompt is visible when interaction was last disabled.
+
 - - - 3.1
 ○ did some cleaning up
 ○ changed SetAdditionalInfoColor and added assert
@@ -87,6 +91,18 @@ local actionIds = {
 	'LIB_IF_GAMECAMERAACTION_CUT',			-- Cut
 	'LIB_IF_GAMECAMERAACTION_COLLECT',		-- Collect
 	'LIB_IF_GAMECAMERAACTION_CAPTURE',		-- Capture
+	
+}
+
+	-- P2P interact
+LIB_IF_PLAYER2PLAYER_INTERACT	= #actionIds + 1
+LIB_IF_PLAYER2PLAYER_REVIVE		= LIB_IF_PLAYER2PLAYER_INTERACT + 1
+local P2P_UNIT_TAG = "reticleoverplayer"
+local P2C_UNIT_TAG = "reticleovercompanion"
+
+local p2pActions = {
+	[LIB_IF_PLAYER2PLAYER_INTERACT] = true,
+	[LIB_IF_PLAYER2PLAYER_REVIVE] = true,
 }
 
 -- "Registring" the actionIds to global
@@ -140,6 +156,7 @@ end
 -- 
 -----------------------------------------------------------------------------
 local lib_reticle = RETICLE
+local lib_p2p = PLAYER_TO_PLAYER
 
 function lib.IterateSelectedAction(action)
 	local actionTypes = lib_actions[action] or {}
@@ -158,7 +175,6 @@ end
 
 function lib.OnTryHandelingInteraction(currentFrameTimeSeconds)
 	local action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract = GetGameCameraInteractableActionInfo()
-	
 	lib.interactionDisabled = false
 	-- Only functions registered for the current target interaction action and those registered with no action will run.
 	for k, _action in ipairs({action, ANY_ACTION}) do
@@ -166,7 +182,7 @@ function lib.OnTryHandelingInteraction(currentFrameTimeSeconds)
 			-- If callback returns true then we know it wants to disable the interaction.
 			-- However, we will allow other callbacks to run so the registered addon can at least get the information.
 			if callback(action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract, currentFrameTimeSeconds) then
-				-- If it turns out addons themselves can't find a way to deal with compatibility issues, may make this return true
+				--TODO: If it turns out addons themselves can't find a way to deal with compatibility issues, may make this return true
 				lib.interactionDisabled = true
 			end
 		end
@@ -204,11 +220,12 @@ end
 -- Un/Register
 -----------------------------------------------------------------------------
 function lib.RegisterOnTryHandlingInteraction(registerdName, action, callback)
+	
 	local action_type = type(action)
 	if action_type == 'function' then
 		callback = action
 		action = ANY_ACTION
-	elseif action_type == 'number' then
+	elseif not p2pActions[action] and action_type == 'number' then
 		action = GetString(action)
 	end
 	
@@ -237,6 +254,32 @@ function lib.UnregisterOnTryHandlingInteraction(registerdName, action)
 		
 		if NonContiguousCount(lib_actions[action]) == 0 then
 			lib_actions[action] = nil
+		end
+	end
+end
+
+-- Player to Player and Player to NPC
+function lib.RegisterP2PInteraction(registerdName, action, callback)
+	assert(type(registerdName) == 'string' and (callback ~= nil and type(callback) == 'function') and type(action) ~= nil , 
+		string.format("LibInteractionHook.RegisterOnTryHandlingInteraction': Your parameters are wrong. Needed types are: ... / Your values are: addonName %q, action %q, filter: %s", tostring(registerdName), tostring(action), tostring(callback)))
+	
+	local actionTable = lib_p2pActions[action] or {}
+	lib_p2pActions[action] = actionTable
+	
+	-- where ... = action, interactableName, interactionBlocked, isOwned, additionalInteractInfo, context, contextLink, isCriminalInteract, currentFrameTimeSeconds
+	actionTable[registerdName] = function(...)
+		return callback(...)
+	end
+end
+
+function lib.UnregisterP2PInteraction(registerdName, action)
+	local actionTable = lib_p2pActions[action]
+	
+	if actionTable ~= nil then
+		actionTable[registerdName] = nil
+		
+		if NonContiguousCount(lib_p2pActions[action]) == 0 then
+			lib_p2pActions[action] = nil
 		end
 	end
 end
@@ -298,11 +341,13 @@ SecurePostHook(lib_reticle, "TryHandlingInteraction", function(self, interaction
 	lib.OnTryHandelingInteraction( currentFrameTimeSeconds)
 end)
 ]]
+--[[
 SecurePostHook(lib_reticle, "UpdateInteractText", function(self, currentFrameTimeSeconds)
     local interactionPossible = not self.interact:IsHidden()
 	if IsPlayerGroundTargeting() then return end
 
-	local interactionExists, _, questInteraction = GetGameCameraInteractableInfo()
+	local interactionExists, interactionAvailableNow, questInteraction, questTargetBased, questJournalIndex, questToolIndex, questToolOnCooldown = GetGameCameraInteractableInfo()
+	local interactionExists, _, questInteraction, questTargetBased = GetGameCameraInteractableInfo()
 	if interactionExists and not questInteraction then
 		-- Since this is now happening after the keybind button state was set, we'll do it here to change it if disabled.
 		-- Setting it disabled only causes it to be faded. That's why other steps have been made to disable interaction.
@@ -311,13 +356,71 @@ SecurePostHook(lib_reticle, "UpdateInteractText", function(self, currentFrameTim
 		end
 	end
 end)
+]]
+
+SecurePostHook(lib_reticle, "UpdateInteractText", function(self, currentFrameTimeSeconds)
+    local interactionPossible = not self.interact:IsHidden()
+	if IsPlayerGroundTargeting() then return end
+	local interactionExists, _, questInteraction, questTargetBased = GetGameCameraInteractableInfo()
+	if interactionPossible and interactionExists then
+	--	if questInteraction or questTargetBased then
+		if questTargetBased then
+			-- Diableing quest interactons have not yet been implemented.
+			lib.interactionDisabled = false
+		elseif lib.OnTryHandelingInteraction(currentFrameTimeSeconds) then
+			-- Since this is now happening after the keybind button state was set, we'll do it here to change it if disabled.
+			-- Setting it disabled only causes it to be faded. That's why other steps have been made to disable interaction.
+			self.interactKeybindButton:SetEnabled(false)
+		end
+	else
+		lib.interactionDisabled = false
+	end
+end)
+
+local function getGroupReticleOverUnitTag()
+	for k, reticleOver in pairs({P2P_UNIT_TAG, P2C_UNIT_TAG}) do
+		if DoesUnitExist(reticleOver) and IsUnitOnline(reticleOver) and AreUnitsCurrentlyAllied("player", reticleOver) then
+			return reticleOver
+		end
+	end
+end
+
+ZO_PreHook(lib_p2p, 'OnUpdate', function(self)
+	if not self.control:IsHidden() then
+		local interactionDisabled = false
+		if not self.isInteracting then
+			local reticleOverUnitTag = getGroupReticleOverUnitTag()
+
+			if reticleOverUnitTag == nil then return end
+		--	d( self.currentTargetCharacterName)
+		--	d( isUnitPlayerOrComanion(reticleOverUnitTag))
+			
+			local resurrectable = IsUnitResurrectableByPlayer(reticleOverUnitTag)
+			
+			-- Only functions registered for the current target interaction action and those registered with no action will run.
+			for k, actionId in ipairs({LIB_IF_PLAYER2PLAYER_INTERACT, LIB_IF_PLAYER2PLAYER_REVIVE}) do
+				for callback in lib.IterateSelectedAction(actionId) do
+				
+					-- If callback returns true then we know it wants to disable the interaction.
+					-- However, we will allow other callbacks to run so the registered addon can at least get the information.
+					if callback(self, actionId, reticleOverUnitTag, resurrectable) then
+						--TODO: If it turns out addons themselves can't find a way to deal with compatibility issues, may make this return true
+						interactionDisabled = true
+					end
+				end
+			end
+		end
+
+		return interactionDisabled
+	end
+end)
 
 -- TryHandlingNonInteractableFixture
 -- TryHandlingQuestInteraction
 -----------------------------------------------------------------------------
 -- Disabling interaction.
 -----------------------------------------------------------------------------
--- This must be used in order to allow gamepad users to jump while interation is disabled
+-- This must be used in order to allow gamepad users to jump while interaction is disabled
 -- It's the check used to see if they should jump or interact. 
 function lib_reticle:GetInteractPromptVisible()
 	if lib.interactionDisabled then
@@ -465,7 +568,7 @@ for actionName, i in pairs(actionsTable) do
 ]]
 
 --[[
-
+GetUnitDisplayName(unitTag)
 	RETICLE.interact:SetHidden(false)
 	RETICLE.interactKeybindButton:SetText(zo_strformat(SI_FORMAT_BULLET_TEXT, GetString(SI_GAME_CAMERA_ACTION_EMPTY)))
 	RETICLE.interactKeybindButton:ShowKeyIcon()
